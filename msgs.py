@@ -1,7 +1,6 @@
 import json
 import struct
 
-
 class Erreur(Exception):
     pass
 
@@ -33,4 +32,3 @@ def recv(sock):
   taille = struct.unpack("!H", H)[0]
   msg_json = recv_exact(sock, taille)
   return json.loads(msg_json)
-

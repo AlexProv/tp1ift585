@@ -9,7 +9,6 @@ class Client(object):
     def __init__(self, usager):
         super(Client, self).__init__()
         self.usager = usager
-        self.groupe = "lobby"
 
 
 if len(sys.argv) < 3:
@@ -36,27 +35,25 @@ while True:
             try:
                 msg = msgs.recv(sock_client)
                 if msg["op"] == "Command":
-                    bash = msg["texte"].split(' ',1)[1].rstrip()
+                    #bash = msg["texte"].split(' ',1)[1].rstrip()
+                    bash = msg["texte"]
                     p = subprocess.Popen(bash, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT) 
                     for line in p.stdout.readlines():
                         for sock_dest, dest in clients.iteritems():
-                            if dest.groupe == usager.groupe:
-                                try:
-                                    msgs.send(
-                                            sock_dest,
-                                            dict(
-                                                op = "Message",
-                                                usager = "System",
-                                                texte = line
-                                                )
+                            try:
+                                msgs.send(
+                                        sock_dest,
+                                        dict(
+                                            op = "Message",
+                                            usager = "System",
+                                            texte = line
                                             )
-                                except msgs.Erreur:
-                                    clients_en_deconnexion.add(sock_dest)
+                                        )
+                            except msgs.Erreur:
+                                clients_en_deconnexion.add(sock_dest)
             except msgs.Erreur:
                 clients_en_deconnexion.add(sock_client)
     for sock in clients_en_deconnexion:
         sock.close()
         del clients[sock]
-
-
 # EOF

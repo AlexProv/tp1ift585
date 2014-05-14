@@ -31,6 +31,4 @@ while True:
             print "*** Serveur down! ***"
             conn.close()
             break
-
-
 # EOF
