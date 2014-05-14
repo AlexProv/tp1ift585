@@ -22,16 +22,7 @@ while True:
             conn.close()
             break
         else:
-            if ligne.lstrip().startswith("#gr"):
-                sp = ligne.split()
-                if len(sp) > 1:
-                    msgs.send(conn, dict(op = "Groupe", groupe = sp[1]))
-            elif ligne.lstrip().startswith("#ls"):
-                msgs.send(conn, dict(op = "Liste"))
-            elif ligne.lstrip().startswith("#co"):
-                msgs.send(conn, dict(op = "Command", texte = ligne))
-            else:
-                msgs.send(conn, dict(op = "Message", texte = ligne))
+            msgs.send(conn, dict(op = "Command", texte = ligne))
     if conn in pret:
         try:
             msg = msgs.recv(conn)

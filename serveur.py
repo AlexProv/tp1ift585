@@ -35,26 +35,9 @@ while True:
         if sock_client in pret:
             try:
                 msg = msgs.recv(sock_client)
-                if msg["op"] == "Message":
-                    for sock_dest, dest in clients.iteritems():
-                        if dest.groupe == usager.groupe:
-                            try:
-                                msgs.send(
-                                        sock_dest,
-                                        dict(
-                                            op = "Message",
-                                            usager = usager.usager,
-                                            texte = msg["texte"]
-                                            )
-                                        )
-                            except msgs.Erreur:
-                                clients_en_deconnexion.add(sock_dest)
-                elif msg["op"] == "Groupe":
-                    usager.groupe = msg["groupe"]
-                elif msg["op"] == "Command":
+                if msg["op"] == "Command":
                     bash = msg["texte"].split(' ',1)[1].rstrip()
-                    teeSave = " | tee temp_result"
-                    p = subprocess.Popen(bash+teeSave, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT) 
+                    p = subprocess.Popen(bash, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT) 
                     for line in p.stdout.readlines():
                         for sock_dest, dest in clients.iteritems():
                             if dest.groupe == usager.groupe:
@@ -67,28 +50,8 @@ while True:
                                                 texte = line
                                                 )
                                             )
-                                    
-                                #code to read file ltee
-                                path = "ltee"
-                                fileopen = open(path,'r+')
-                                for(line in fileopen):
-                                    print line    
-                                #send line ? 
-
                                 except msgs.Erreur:
                                     clients_en_deconnexion.add(sock_dest)
-                elif msg["op"] == "Liste":
-                    try:
-                        msgs.send(
-                                sock_client,
-                                dict(
-                                    op = "Message",
-                                    usager = "MASTER",
-                                    texte = "\n".join(set([u.groupe for u in clients.itervalues()]))
-                                    )
-                                )
-                    except msgs.Erreur:
-                        clients_en_deconnexion.add(sock_client)
             except msgs.Erreur:
                 clients_en_deconnexion.add(sock_client)
     for sock in clients_en_deconnexion:
