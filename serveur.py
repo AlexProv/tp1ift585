@@ -48,6 +48,8 @@ while True:
                                         stdout=subprocess.PIPE,
                                         stderr=subprocess.STDOUT, 
                                         env = envi) 
+
+
                     for line in p.stdout.readlines():
                         for sock_dest, dest in clients.iteritems():
                             try:
@@ -61,6 +63,21 @@ while True:
                                         )
                             except msgs.Erreur:
                                 clients_en_deconnexion.add(sock_dest)
+                                
+                #hack pour tester le file transfer. 
+                if(msg["op"] == "test"):
+                    filecontent = open('test')
+                    for sock_dest, dest in clients.iteritems():
+                        try:
+                            msgs.send(sock_dest,
+                                      dict(
+                                          op = "FileDownload",
+                                          FileName = "Tee",
+                                          Content = filecontent.read()
+                                          )
+                                      )
+                        except msgs.Erreur:
+                            clients_en_deconnexion.add(sock_dest)
             except msgs.Erreur:
                 clients_en_deconnexion.add(sock_client)
     for sock in clients_en_deconnexion:

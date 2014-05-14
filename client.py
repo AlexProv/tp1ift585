@@ -22,11 +22,23 @@ while True:
             conn.close()
             break
         else:
-            msgs.send(conn, dict(op = "Command", texte = ligne))
+            if ligne.lstrip().startswith("#test"):
+                #hack pour etre capable de tester le file transfere. c'est un bon example de comment faire.
+                msgs.send(conn,dict(op = "test"))
+            else:
+                msgs.send(conn, dict(op = "Command", texte = ligne))
+
     if conn in pret:
         try:
             msg = msgs.recv(conn)
-            print msg["usager"], "--", msg["texte"].rstrip()
+            #pour faire du download de fichier. 
+            if msg["op"] == "FileDownload":
+                fileName = msg["FileName"]
+                teeFile = open(fileName,'w')
+                teeFile.write(msg["Content"])
+            else:
+                print msg["usager"], "--", msg["texte"].rstrip()
+
         except msgs.Erreur:
             print "*** Serveur down! ***"
             conn.close()
