@@ -3,6 +3,7 @@ import select
 import socket
 import sys
 import subprocess
+import os
 
 class Client(object):
 
@@ -37,7 +38,16 @@ while True:
                 if msg["op"] == "Command":
                     #bash = msg["texte"].split(' ',1)[1].rstrip()
                     bash = msg["texte"]
-                    p = subprocess.Popen(bash, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT) 
+
+                    envi = dict(os.environ)
+                    envi["addr"] = addr
+                    envi["port"] = sys.argv[2]
+                    p = subprocess.Popen(bash, 
+                                        shell=True,
+                                        stdin=subprocess.PIPE,
+                                        stdout=subprocess.PIPE,
+                                        stderr=subprocess.STDOUT, 
+                                        env = envi) 
                     for line in p.stdout.readlines():
                         for sock_dest, dest in clients.iteritems():
                             try:
