@@ -4,6 +4,7 @@ import socket
 import sys
 import subprocess
 import os
+import uuid
 
 class Client(object):
 
@@ -30,8 +31,9 @@ while True:
     if ecouteur in pret:
         client, _ = ecouteur.accept()
         msg_conn = msgs.recv(client)
-        clients[client] = Client(msg_conn["usager"])
-    for sock_client, usager in clients.iteritems():
+        # set an id for the new client
+        clients[client] = str(uuid.uuid4())
+    for sock_client, client_id in clients.iteritems():
         if sock_client in pret:
             try:
                 msg = msgs.recv(sock_client)
@@ -42,6 +44,7 @@ while True:
                     envi = dict(os.environ)
                     envi["addr"] = addr
                     envi["port"] = sys.argv[2]
+                    envi["id"] = client_id
                     p = subprocess.Popen(bash, 
                                         shell=True,
                                         stdin=subprocess.PIPE,
@@ -51,18 +54,16 @@ while True:
 
 
                     for line in p.stdout.readlines():
-                        for sock_dest, dest in clients.iteritems():
-                            try:
-                                msgs.send(
-                                        sock_dest,
-                                        dict(
-                                            op = "Message",
-                                            usager = "System",
-                                            texte = line
-                                            )
+                        try:
+                            msgs.send(
+                                    sock_client,
+                                    dict(
+                                        op = "Message",
+                                        texte = line
                                         )
-                            except msgs.Erreur:
-                                clients_en_deconnexion.add(sock_dest)
+                                    )
+                        except msgs.Erreur:
+                            clients_en_deconnexion.add(sock_client)
                                 
                 #hack pour tester le file transfer. 
                 if(msg["op"] == "test"):
