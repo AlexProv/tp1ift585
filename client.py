@@ -20,12 +20,8 @@ while True:
         if len(ligne) == 0:
             conn.close()
             break
-        else:
-            if ligne.lstrip().startswith("ltee"):
-                #hack pour etre capable de tester le file transfere. c'est un bon example de comment faire.
-                msgs.send(conn,dict(op = "ltee"))
-            else:
-                msgs.send(conn, dict(op = "Command", texte = ligne))
+        else:    
+            msgs.send(conn, dict(op = "Command", texte = ligne))
 
     if conn in pret:
         try:
@@ -33,8 +29,11 @@ while True:
             #pour faire du download de fichier. 
             if msg["op"] == "FileDownload":
                 fileName = msg["FileName"]
-                teeFile = open(fileName,'w')
-                teeFile.write(msg["Content"])
+                con = msg["Content"]
+                print con
+                f = open(fileName,'w+')
+                f.write(con)
+                f.close()
             else:
                 print msg["texte"].rstrip()
 

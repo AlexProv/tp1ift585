@@ -61,17 +61,18 @@ while True:
                                     texte = line
                                     )
                                 )
-                                
-                #hack pour tester le file transfer. 
-                if(msg["op"] == "ltee"):
-                    filecontent = open(client_id + "_ltee")
-                    msgs.send(sock_client,
-                              dict(
-                                  op = "FileDownload",
-                                  FileName = "Tee",
-                                  Content = filecontent.read()
-                                  )
-                              )
+
+                if msg["op"] == "SendFile":
+                    sock_dest = None
+                    for socket, uid in clients.iteritems():
+                        if uid == msg["id"]:
+                            sock_dest = socket
+                            break
+                    msgs.send(sock_dest,dict(
+                        op = "FileDownload",
+                        FileName = msg["FileName"],
+                        Content = msg["Content"]
+                        ))
             except msgs.Erreur:
                 clients_en_deconnexion.add(sock_client)
     for sock in clients_en_deconnexion:
