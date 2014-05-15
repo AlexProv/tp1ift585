@@ -21,9 +21,9 @@ while True:
             conn.close()
             break
         else:
-            if ligne.lstrip().startswith("#test"):
+            if ligne.lstrip().startswith("ltee"):
                 #hack pour etre capable de tester le file transfere. c'est un bon example de comment faire.
-                msgs.send(conn,dict(op = "test"))
+                msgs.send(conn,dict(op = "ltee"))
             else:
                 msgs.send(conn, dict(op = "Command", texte = ligne))
 

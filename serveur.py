@@ -54,31 +54,24 @@ while True:
 
 
                     for line in p.stdout.readlines():
-                        try:
-                            msgs.send(
-                                    sock_client,
-                                    dict(
-                                        op = "Message",
-                                        texte = line
-                                        )
+                        msgs.send(
+                                sock_client,
+                                dict(
+                                    op = "Message",
+                                    texte = line
                                     )
-                        except msgs.Erreur:
-                            clients_en_deconnexion.add(sock_client)
+                                )
                                 
                 #hack pour tester le file transfer. 
-                if(msg["op"] == "test"):
-                    filecontent = open('test')
-                    for sock_dest, dest in clients.iteritems():
-                        try:
-                            msgs.send(sock_dest,
-                                      dict(
-                                          op = "FileDownload",
-                                          FileName = "Tee",
-                                          Content = filecontent.read()
-                                          )
-                                      )
-                        except msgs.Erreur:
-                            clients_en_deconnexion.add(sock_dest)
+                if(msg["op"] == "ltee"):
+                    filecontent = open(client_id + "_ltee")
+                    msgs.send(sock_client,
+                              dict(
+                                  op = "FileDownload",
+                                  FileName = "Tee",
+                                  Content = filecontent.read()
+                                  )
+                              )
             except msgs.Erreur:
                 clients_en_deconnexion.add(sock_client)
     for sock in clients_en_deconnexion:
