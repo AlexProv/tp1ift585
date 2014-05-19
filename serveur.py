@@ -62,17 +62,22 @@ while True:
                                     )
                                 )
 
-                if msg["op"] == "SendFile":
-                    sock_dest = None
-                    for socket, uid in clients.iteritems():
-                        if uid == msg["id"]:
-                            sock_dest = socket
-                            break
-                    msgs.send(sock_dest,dict(
-                        op = "FileDownload",
-                        FileName = msg["FileName"],
-                        Content = msg["Content"]
-                        ))
+                elif msg["op"] == "SendFile":
+                    if client_id == msg["id"]:
+                        msgs.send(sock_client,dict(
+                            op = "FileDownload",
+                            FileName = msg["FileName"],
+                            Content = msg["Content"]
+                            ))
+
+                elif msg["op"] == "UploadFile":
+                    file_name = msg["FileName"]
+                    content = msg["Content"]
+
+                    uploadedFile = open(file_name,'w+')
+                    uploadedFile.write(content)
+                    uploadedFile.close()
+
             except msgs.Erreur:
                 clients_en_deconnexion.add(sock_client)
     for sock in clients_en_deconnexion:

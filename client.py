@@ -2,6 +2,8 @@ import msgs
 import select
 import socket
 import sys
+import os
+import subprocess
 
 
 if len(sys.argv) < 3:
@@ -20,6 +22,31 @@ while True:
         if len(ligne) == 0:
             conn.close()
             break
+        elif ligne.startswith("./lcat"):
+            envi = dict(os.environ)
+            envi["addr"] = addr
+            envi["port"] = sys.argv[2]
+            envi["command"] = ligne
+
+            p = subprocess.Popen(ligne,
+                                shell=True,
+                                stdin=subprocess.PIPE,
+                                stdout=subprocess.PIPE,
+                                stderr=subprocess.STDOUT,
+                                env = envi)
+            p.wait()
+
+            client_server_split = ligne.split('>')
+            server_split = client_server_split[1].replace(' ', '').replace('\n','')
+            tempName = 'lcat_result'
+            filecat = open(tempName,'r')
+            msgs.send(conn,dict(
+                op="UploadFile",
+                FileName = server_split,
+                Content = filecat.read()
+            ))
+            filecat.close()
+            os.remove(tempName)
         else:    
             msgs.send(conn, dict(op = "Command", texte = ligne))
 
